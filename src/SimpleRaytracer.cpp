@@ -1,4 +1,4 @@
-﻿#include "SimpleRaytracer.h"
+﻿#include <iostream>
 
 int main()
 {

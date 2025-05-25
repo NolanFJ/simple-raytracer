@@ -15,7 +15,7 @@ set (CMAKE_CXX_STANDARD 17)
 set (CMAKE_CXX_STANDARD_REQUIRED ON)
 
 # Add source to this project's executable.
-add_executable (SimpleRaytracer "src/SimpleRaytracer.cpp" "src/SimpleRaytracer.h")
+add_executable (SimpleRaytracer "src/SimpleRaytracer.cpp" )
 
 if (CMAKE_VERSION VERSION_GREATER 3.12)
   set_property(TARGET SimpleRaytracer PROPERTY CXX_STANDARD 20)
