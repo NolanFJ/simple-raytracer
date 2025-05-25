@@ -1,0 +1,42 @@
+# === Visual Studio ===
+.vs/
+*.user
+*.suo
+*.sln.docstates
+
+# === Build folders ===
+build/
+Build/
+[Bb]in/
+[Oo]bj/
+
+# === CMake ===
+CMakeCache.txt
+CMakeFiles/
+cmake_install.cmake
+Makefile
+CMakeUserPresets.json
+
+# === Generated files ===
+*.log
+*.vcxproj.*
+*.tlog/
+*.lastbuildstate
+*.idb
+*.pdb
+*.aps
+*.ncb
+*.opensdf
+*.sdf
+*.VC.db
+*.VC.VC.opendb
+*.ipch
+*.vsidx
+
+# === Other ===
+*.exe
+*.dll
+*.lib
+*.obj
+*.tmp
+*.pch
