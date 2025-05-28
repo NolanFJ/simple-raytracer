@@ -1,4 +1,7 @@
-﻿#include <iostream>
+﻿#include "vec3.h"
+#include "color.h"
+
+#include <iostream>
 #include <fstream>
 
 void render()
@@ -26,10 +29,8 @@ void render()
 
 		for (int j{}; j < width; ++j)
 		{
-			// range from 0-1, scaled to 0-255
-			outf << static_cast<uint8_t>(255.999 * (static_cast<float>(j) / (width - 1))); // R
-			outf << static_cast<uint8_t>(255.999 * (static_cast<float>(i) / (height - 1))); // G
-			outf << static_cast<uint8_t>(0); // B
+			color pixelColor{(static_cast<float>(j) / (width - 1)), (static_cast<float>(i) / (height - 1)), 0};
+			writeColor(outf, pixelColor);
 		}
 	}
 	std::clog << "\rDone.                  \n";
