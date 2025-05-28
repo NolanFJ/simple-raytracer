@@ -1,3 +1,3 @@
 My first real attempt at anything graphics programming related.
 
-Made by following this [tutorial](https://github.com/ssloy/tinyraytracer/wiki/Part-1:-understandable-raytracing) by Ssloy.
+Made by following [Ray Tracing in One Weekend Book 1](https://raytracing.github.io/books/RayTracingInOneWeekend.html#dielectrics/snell'slaw) by Peter Shirley as well as adding my own modifications to try and achieve better performance.
