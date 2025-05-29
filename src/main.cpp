@@ -5,12 +5,30 @@
 #include <iostream>
 #include <fstream>
 
+// check if the ray intersects through a sphere
+bool hitSphere(const point3& center, float radius, const Ray& ray)
+{
+	auto centerMinusOrigin{ center - ray.getOrigin() };
+
+	auto a{ dot(ray.getDirection(), ray.getDirection())};
+	auto b{ dot(( - 2 * ray.getDirection()), centerMinusOrigin)};
+	auto c{ dot(centerMinusOrigin, centerMinusOrigin) - (radius * radius) };
+	auto determinant{ (b * b) - (4 * a * c) };
+
+	return (determinant >= 0);
+}
+
 // returns color for given scene ray
 color rayColor(const Ray& ray)
 {
-	// blendedValue = (1 - a) * startValue + a * endValue
-	auto a{0.5 * (ray.getDirection().getY() + 1)};
-	return ((1.0 - a) * color(1.0, 1.0, 1.0) + a * color(0.5, 0.7, 1.0));
+	if (hitSphere(point3(0, 0, -1.0), 0.5, ray))
+		return (color(1.0, 0, 0));
+	else
+	{
+		// blendedValue = (1 - a) * startValue + a * endValue
+		auto a{ 0.5 * (ray.getDirection().getY() + 1) };
+		return ((1.0 - a) * color(1.0, 1.0, 1.0) + a * color(0.5, 0.7, 1.0));
+	}
 }
 
 void render()
