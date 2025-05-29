@@ -6,23 +6,36 @@
 #include <fstream>
 
 // check if the ray intersects through a sphere
-bool hitSphere(const point3& center, float radius, const Ray& ray)
+float hitSphere(const point3& center, float radius, const Ray& ray)
 {
 	auto centerMinusOrigin{ center - ray.getOrigin() };
 
-	auto a{ dot(ray.getDirection(), ray.getDirection())};
-	auto b{ dot(( - 2 * ray.getDirection()), centerMinusOrigin)};
-	auto c{ dot(centerMinusOrigin, centerMinusOrigin) - (radius * radius) };
-	auto determinant{ (b * b) - (4 * a * c) };
+	// values for quadratic eqn
+	auto a{ ray.getDirection().lengthSquared() };
+	auto h{ dot(ray.getDirection(), centerMinusOrigin) };
+	auto c{ centerMinusOrigin.lengthSquared() - (radius * radius)};
+	auto determinant{ (h * h) - (a * c) };
 
-	return (determinant >= 0);
+	// value where t intersects the sphere
+	if (determinant >= 0)
+		return (( h - std::sqrt(determinant)) / a);
+	else
+		return -1.0; // no solution
 }
 
 // returns color for given scene ray
 color rayColor(const Ray& ray)
 {
-	if (hitSphere(point3(0, 0, -1.0), 0.5, ray))
-		return (color(1.0, 0, 0));
+	float t{ hitSphere(point3(0, 0, -1.0), 0.5, ray) };
+
+	// hits sphere
+	if (t >= 0.0)
+	{
+		// outward normal vector
+		Vec3 surfaceVec{ unit(ray.at(t) - point3(0, 0, -1.0))};
+		// map from -1 to 1 -> 0 to 1
+		return (0.5 * color(surfaceVec.getX() + 1.0, surfaceVec.getY() + 1.0, surfaceVec.getZ() + 1.0));
+	}
 	else
 	{
 		// blendedValue = (1 - a) * startValue + a * endValue

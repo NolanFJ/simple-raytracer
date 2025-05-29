@@ -23,7 +23,7 @@ public:
 	const Vec3& getDirection() const { return m_direction; }
 
 	// find location of a point along a ray when given t
-	point3 at(float t)
+	const point3 at(float t) const
 	{
 		return (m_origin + (t * m_direction)); // P(t) = A + tb
 	}
