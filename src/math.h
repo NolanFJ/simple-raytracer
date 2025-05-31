@@ -20,3 +20,4 @@ inline float degreesToRadians(float degrees)
 #include "vec3.h"
 #include "ray.h"
 #include "interval.h"
+#include "camera.h"
