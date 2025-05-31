@@ -1,8 +1,5 @@
 #pragma once
 
-#include <cmath>
-#include <iostream>
-
 class Vec3
 {
 private:

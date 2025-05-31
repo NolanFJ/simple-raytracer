@@ -1,47 +1,23 @@
-﻿#include "vec3.h"
-#include "color.h"
-#include "ray.h"
+﻿#include "math.h"
+#include "hittable.h"
+#include "hittableList.h"
+#include "sphere.h"
 
-#include <iostream>
 #include <fstream>
 
-// check if the ray intersects through a sphere
-float hitSphere(const point3& center, float radius, const Ray& ray)
-{
-	auto centerMinusOrigin{ center - ray.getOrigin() };
-
-	// values for quadratic eqn
-	auto a{ ray.getDirection().lengthSquared() };
-	auto h{ dot(ray.getDirection(), centerMinusOrigin) };
-	auto c{ centerMinusOrigin.lengthSquared() - (radius * radius)};
-	auto determinant{ (h * h) - (a * c) };
-
-	// value where t intersects the sphere
-	if (determinant >= 0)
-		return (( h - std::sqrt(determinant)) / a);
-	else
-		return -1.0; // no solution
-}
-
 // returns color for given scene ray
-color rayColor(const Ray& ray)
+color rayColor(const Ray& ray, const Hittable& obj)
 {
-	float t{ hitSphere(point3(0, 0, -1.0), 0.5, ray) };
+	HitRecord rec{};
+	if (obj.hit(ray, 0, infinity, rec))
+	{
+		return 0.5 * color(rec.getNormal().getX() + 1, rec.getNormal().getY() + 1, rec.getNormal().getZ() + 1);
+	}
 
-	// hits sphere
-	if (t >= 0.0)
-	{
-		// outward normal vector
-		Vec3 surfaceVec{ unit(ray.at(t) - point3(0, 0, -1.0))};
-		// map from -1 to 1 -> 0 to 1
-		return (0.5 * color(surfaceVec.getX() + 1.0, surfaceVec.getY() + 1.0, surfaceVec.getZ() + 1.0));
-	}
-	else
-	{
-		// blendedValue = (1 - a) * startValue + a * endValue
-		auto a{ 0.5 * (ray.getDirection().getY() + 1) };
-		return ((1.0 - a) * color(1.0, 1.0, 1.0) + a * color(0.5, 0.7, 1.0));
-	}
+	// blendedValue = (1 - a) * startValue + a * endValue
+	auto a{ 0.5 * (ray.getDirection().getY() + 1) };
+	return ((1.0 - a) * color(1.0, 1.0, 1.0) + a * color(0.5, 0.7, 1.0));
+	
 }
 
 void render()
@@ -52,6 +28,11 @@ void render()
 	constexpr int width{1024};
 	int height{static_cast<int>(width / aspectRatio)};
 	height = (height < 1) ? 1 : height; // make sure height is at least 1
+
+	// Objects
+	HittableList world{};
+	world.add(std::make_shared<Sphere>(point3(0, 0, -1.0), 0.5));
+	world.add(std::make_shared<Sphere>(point3(0, -100.5, -1.0), 100.0));
 
 	// distance between viewport and camera
 	float focalLength{1.0};
@@ -101,7 +82,7 @@ void render()
 			Ray ray{cameraCenter, rayDirection};
 
 			// get color of each ray
-			color pixelColor{rayColor(ray)};
+			color pixelColor{rayColor(ray, world)};
 
 			writeColor(outf, pixelColor);	
 		}
