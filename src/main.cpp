@@ -9,7 +9,7 @@
 color rayColor(const Ray& ray, const Hittable& obj)
 {
 	HitRecord rec{};
-	if (obj.hit(ray, 0, infinity, rec))
+	if (obj.hit(ray, Interval(0, infinity), rec))
 	{
 		return 0.5 * color(rec.getNormal().getX() + 1, rec.getNormal().getY() + 1, rec.getNormal().getZ() + 1);
 	}

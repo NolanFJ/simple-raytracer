@@ -19,3 +19,4 @@ inline float degreesToRadians(float degrees)
 #include "color.h"
 #include "vec3.h"
 #include "ray.h"
+#include "interval.h"

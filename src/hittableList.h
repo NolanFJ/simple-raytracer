@@ -31,16 +31,16 @@ public:
 		m_objects.clear();
 	}
 
-	bool hit(const Ray& ray, float tmin, float tmax, HitRecord& rec) const override
+	bool hit(const Ray& ray, const Interval& interval, HitRecord& rec) const override
 	{
 		HitRecord tempRec{};
 		bool hit{};
-		float closest{ tmax };
+		float closest{ interval.getMax()};
 
 		// iterate through all objects
 		for (const auto& object : m_objects)
 		{
-			if (object->hit(ray, tmin, closest, tempRec)) // check to see if they hit
+			if (object->hit(ray, Interval(interval.getMin(), closest), tempRec)) // check to see if they hit
 			{
 				hit = true;
 				closest = tempRec.getT();

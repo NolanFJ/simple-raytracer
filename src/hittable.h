@@ -36,5 +36,5 @@ class Hittable
 public:
 	virtual ~Hittable() = default;
 
-	virtual bool hit(const Ray& ray, float tmin, float tmax, HitRecord& rec) const = 0;
+	virtual bool hit(const Ray& ray, const Interval& interval, HitRecord& rec) const = 0;
 };

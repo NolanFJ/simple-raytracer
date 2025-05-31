@@ -14,7 +14,7 @@ public:
 	{
 	}
 
-	bool hit(const Ray& ray, float tmin, float tmax, HitRecord& rec) const override
+	bool hit(const Ray& ray, const Interval& interval, HitRecord& rec) const override
 	{
 		auto centerMinusOrigin{ m_center - ray.getOrigin() };
 
@@ -30,10 +30,10 @@ public:
 		auto sqrtd{ std::sqrt(discriminant) };
 		auto root{ (h - std::sqrt(discriminant)) / a }; // smaller root
 		
-		if (root <= tmin || root >= tmax) // if smaller root is invalid
+		if (root <= interval.getMin() || root >= interval.getMax()) // if smaller root is invalid
 		{
 			root = h + std::sqrt(discriminant); // try larger root
-			if (root <= tmin || root >= tmax)
+			if (root <= interval.getMin() || root >= interval.getMax())
 				return false; // no valid roots
 		}
 
