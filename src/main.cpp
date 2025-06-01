@@ -12,7 +12,7 @@ int main()
 	world.add(std::make_shared<Sphere>(point3(0, 0, -1.0), 0.5));
 	world.add(std::make_shared<Sphere>(point3(0, -100.5, -1.0), 100.0));
 
-	Camera camera{1024}; // pass the image width
+	Camera camera{400}; // pass the image width
 
 	camera.render(world);
 

@@ -39,6 +39,17 @@ public:
 		return (t > m_min && t < m_max);
 	}
 
+	// ensure that color components remain in designated bounds
+	float clamp(float x) const
+	{
+		if (x < m_min)
+			return m_min;
+		else if (x > m_max)
+			return m_max;
+		else
+			return x;
+	}
+
 	static const Interval empty;
 	static const Interval universe;
 };

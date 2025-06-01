@@ -28,7 +28,8 @@ private:
 public:
 	const float aspectRatio{ 16.0 / 9 };
 	const int width{};
-	const float focalLength{ 1.0 };
+	const float focalLength{ 1.0 }; // distance from fropm cam and viewport
+	const int samplesPerPixel{ 100 }; // count of random samples for each pixel
 
 	// initialize the camera/viewport values
 	Camera(int w = 1024, float aspectR = (16.0 / 9))
@@ -75,18 +76,30 @@ public:
 
 			for (int j{}; j < width; ++j)
 			{
-				auto pixelCenter{ m_pixel00Location + (i * m_deltaV) + (j * m_deltaU) };
-				auto rayDirection{ unit(pixelCenter - m_cameraCenter) };
+				color pixelColor{};
 
-				// starts at camera center then directed towards rayDirection
-				Ray ray{ m_cameraCenter, rayDirection };
+				for (int k{}; k < samplesPerPixel; ++k)
+				{
+					// starts at camera center then directed towards rayDirection
+					Ray ray{ getRay(i, j) };
 
-				// get color of each ray
-				color pixelColor{ rayColor(ray, world) };
-
-				writeColor(outf, pixelColor);
+					// add up color of each ray
+					pixelColor += rayColor(ray, world);
+				}
+				// write the average pixelColor across all samples
+				writeColor(outf, (pixelColor / samplesPerPixel));
 			}
 		}
 		std::clog << "\rDone.                  \n";
+	}
+
+	// get rays of random samples per pixel
+	Ray getRay(int i, int j) const
+	{
+		// offset by a random value
+		auto pixel{ m_pixel00Location + ((j + (generateRandom() - 0.5f)) * m_deltaU) + ((i + (generateRandom() - 0.5f)) * m_deltaV) };
+		auto rayDirection{ unit(pixel - m_cameraCenter) };
+
+		return Ray(m_cameraCenter, rayDirection);
 	}
 };
