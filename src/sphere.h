@@ -7,11 +7,12 @@ class Sphere : public Hittable
 private:
 	point3 m_center{};
 	float m_radius{};
+	std::shared_ptr<Material> m_material{};
 
 public:
-	Sphere(const point3& center, float radius)
-		: m_center{ center }, m_radius{ static_cast<float>(std::fmax(0, radius)) } // make sure radius cannot be negative
-	{
+	Sphere(const point3& center, float radius, std::shared_ptr<Material> material)
+		: m_center{ center }, m_radius{ static_cast<float>(std::fmax(0, radius)) }, m_material{ std::move(material) }
+	{ //						make sure radius cannot be negative
 	}
 
 	bool hit(const Ray& ray, const Interval& interval, HitRecord& rec) const override
@@ -41,6 +42,7 @@ public:
 		rec.setT(root);
 		rec.setPoint(ray.at(root));
 		rec.setFaceNormal(ray, unit(rec.getPoint() - m_center));
+		rec.setMaterial(m_material);
 
 		return true;
 	}

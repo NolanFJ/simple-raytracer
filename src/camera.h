@@ -1,6 +1,8 @@
 #pragma once
 
 #include "hittable.h"
+#include "material.h"
+
 #include <fstream>
 
 class Camera
@@ -22,9 +24,14 @@ private:
 
 		if (obj.hit(ray, Interval(1e-4, infinity), rec))
 		{
-			// add randomVec according to Lambertian distribution
-			Vec3 dir{ rec.getNormal() + randomUnit()};
-			return 0.5 * rayColor(Ray(rec.getPoint(), dir), depth - 1, obj);
+			Ray scattered{};
+			color attenuation{};
+			// if the ray scatters (100% prob currently)
+			if (rec.getMaterial()->scatter(ray, rec, attenuation, scattered))
+			{
+				return attenuation * rayColor(scattered, depth - 1, obj);
+			}
+			return color(0, 0, 0);
 		}
 
 		// blendedValue = (1 - a) * startValue + a * endValue

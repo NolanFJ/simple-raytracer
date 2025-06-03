@@ -92,6 +92,12 @@ public:
 	{
 		return Vec3(generateRandom(min, max), generateRandom(min, max), generateRandom(min, max));
 	}
+
+	// check to see if every component in a vec is near zero
+	bool nearZero() const
+	{
+		return ((std::fabs(e[0]) < 1e-8) && (std::fabs(e[1]) < 1e-8) && (std::fabs(e[2]) < 1e-8));
+	}
 };
 
 // better clarity when dealing with colors vs points
@@ -182,4 +188,10 @@ inline Vec3 randomOnHemisphere(const Vec3& normal)
 	
 	// make sure it is on correct hemisphere
 	return (dot(randomVec, normal) > 0.0) ? randomVec : -randomVec;
+}
+
+// find reflected ray 
+inline Vec3 reflect(const Vec3& v, const Vec3& n)
+{
+	return (v - (2 * dot(v, n)) * n);
 }

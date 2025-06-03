@@ -39,3 +39,4 @@ inline float generateRandom(float min, float max)
 #include "ray.h"
 #include "interval.h"
 #include "camera.h"
+#include "material.h"
