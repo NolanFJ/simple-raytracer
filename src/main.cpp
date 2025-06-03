@@ -3,16 +3,26 @@
 #include "hittable.h"
 #include "hittableList.h"
 #include "sphere.h"
+#include "material.h"
 
 int main()
 {
 	// Objects to appear in the scene
 	HittableList world{};
 
-	world.add(std::make_shared<Sphere>(point3(0, 0, -1.0), 0.5));
-	world.add(std::make_shared<Sphere>(point3(0, -100.5, -1.0), 100.0));
+	// set material of each object
+	auto materialGround{ std::make_shared<Lambertian>(color(0.8f, 0.8f, 0.0f)) };
+	auto materialCenter{ std::make_shared<Lambertian>(color(0.1f, 0.2f, 0.5f)) };
+	auto materialLeft{ std::make_shared<Metal>(color(0.8f, 0.8f, 0.8f), 0.3f) };
+	auto materialRight{ std::make_shared<Metal>(color(0.83f, 0.69f, 0.22f), 0.05f) };
 
-	Camera camera{400}; // pass the image width
+	// add each object into the scene
+	world.add(std::make_shared<Sphere>(point3(0.0f, -100.5f, -1.0f), 100.0f, materialGround));
+	world.add(std::make_shared<Sphere>(point3(0.0f, 0.0f, -1.2f), 0.5f, materialCenter));
+	world.add(std::make_shared<Sphere>(point3(-1.0f, 0.0f, -1.0f), 0.5f, materialLeft));
+	world.add(std::make_shared<Sphere>(point3(1.0f, 0.0f, -1.0f), 0.5f, materialRight));
+
+	Camera camera{1024}; // pass the image width
 
 	camera.render(world);
 
