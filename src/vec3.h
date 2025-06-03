@@ -80,6 +80,18 @@ public:
 	{
 		return std::sqrt(lengthSquared());
 	}
+
+	// return a vec where components are randomized between 0-1
+	static Vec3 randomVec()
+	{
+		return Vec3(generateRandom(), generateRandom(), generateRandom());
+	}
+
+	// return a vec where components are random #s in designated boundary
+	static Vec3 randomVec(float min, float max)
+	{
+		return Vec3(generateRandom(min, max), generateRandom(min, max), generateRandom(min, max));
+	}
 };
 
 // better clarity when dealing with colors vs points
@@ -145,4 +157,29 @@ inline Vec3 cross(const Vec3& v1, const Vec3& v2)
 inline Vec3 unit(const Vec3& v)
 {
 	return Vec3(v / v.length());
+}
+
+// generate a random unit vector in sphere
+inline Vec3 randomUnit()
+{
+	while (true)
+	{
+		auto randomPoint{ Vec3::randomVec(-1.0f, 1.0f) };
+		float squaredRandomPoint{ randomPoint.lengthSquared() };
+
+		// protect against floating point precision issues and make sure point is in sphere
+		if (squaredRandomPoint > 1e-160 && squaredRandomPoint <= 1.0f)
+		{
+			return unit(randomPoint);
+		}
+	}	
+}
+
+// invert vec if it not on correct hemisphere
+inline Vec3 randomOnHemisphere(const Vec3& normal)
+{
+	Vec3 randomVec{ randomUnit() };
+	
+	// make sure it is on correct hemisphere
+	return (dot(randomVec, normal) > 0.0) ? randomVec : -randomVec;
 }

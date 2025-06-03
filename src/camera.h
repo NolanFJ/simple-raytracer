@@ -12,12 +12,19 @@ private:
 	Vec3 m_deltaU{}; // vector from pixel to pixel horizontally
 	Vec3 m_deltaV{}; // vector from pixel to pixel vertically
 
-	color rayColor(const Ray& ray, const Hittable& obj) const
+	color rayColor(const Ray& ray, int depth, const Hittable& obj) const
 	{
+		// protect against long recursion
+		if (depth <= 0)
+			return color(0, 0, 0);
+
 		HitRecord rec{};
-		if (obj.hit(ray, Interval(0, infinity), rec))
+
+		if (obj.hit(ray, Interval(1e-4, infinity), rec))
 		{
-			return 0.5 * color(rec.getNormal().getX() + 1, rec.getNormal().getY() + 1, rec.getNormal().getZ() + 1);
+			// add randomVec according to Lambertian distribution
+			Vec3 dir{ rec.getNormal() + randomUnit()};
+			return 0.5 * rayColor(Ray(rec.getPoint(), dir), depth - 1, obj);
 		}
 
 		// blendedValue = (1 - a) * startValue + a * endValue
@@ -30,6 +37,7 @@ public:
 	const int width{};
 	const float focalLength{ 1.0 }; // distance from fropm cam and viewport
 	const int samplesPerPixel{ 100 }; // count of random samples for each pixel
+	const int maxDepth{ 50 }; // maximum number of ray bounces into the scene
 
 	// initialize the camera/viewport values
 	Camera(int w = 1024, float aspectR = (16.0 / 9))
@@ -84,7 +92,7 @@ public:
 					Ray ray{ getRay(i, j) };
 
 					// add up color of each ray
-					pixelColor += rayColor(ray, world);
+					pixelColor += rayColor(ray, maxDepth, world);
 				}
 				// write the average pixelColor across all samples
 				writeColor(outf, (pixelColor / samplesPerPixel));
