@@ -5,11 +5,18 @@
 
 using color = Vec3;
 
+// convert from linear space to gamma 2 space (my image viewer is expecting gamma space)
+inline float linearToGamma(float linear)
+{
+	return (linear > 0) ? std::sqrt(linear) : 0;
+}
+
 void writeColor(std::ostream& out, const color& pixelColor)
 {
-	auto r{pixelColor.getX()};
-	auto g{pixelColor.getY()};
-	auto b{pixelColor.getZ()};
+	// convert to gamma space values
+	auto r{linearToGamma(pixelColor.getX())};
+	auto g{linearToGamma(pixelColor.getY())};
+	auto b{linearToGamma(pixelColor.getZ())};
 
 	// scale from 1 to 255
 	// using P6 so needs binary format
@@ -22,5 +29,4 @@ void writeColor(std::ostream& out, const color& pixelColor)
 	out.write(reinterpret_cast<const char*>(&rByte), 1);
 	out.write(reinterpret_cast<const char*>(&gByte), 1);
 	out.write(reinterpret_cast<const char*>(&bByte), 1);
-	
 }
