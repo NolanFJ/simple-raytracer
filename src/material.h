@@ -66,3 +66,49 @@ public:
 	}
 	
 };
+
+class  Dielectric : public Material
+{
+private:
+	// of material assuming surrounded by air
+	float m_refractiveIndex{};
+
+	// Schlick's approximation (assuming n1 is air)
+	static float reflectance(float cos, float refractiveIndex)
+	{
+		float r0{ ((1 - refractiveIndex) / (1 + refractiveIndex)) * ((1 - refractiveIndex) / (1 + refractiveIndex)) };
+		return (r0 + (1 - r0) * std::pow((1 - cos), 5));
+	}
+
+public:
+	Dielectric(float refractiveIndex)
+		: m_refractiveIndex{ refractiveIndex }
+	{
+	}
+
+	bool scatter(const Ray& incident, const HitRecord& rec, color& attenuation, Ray& scattered) const override
+	{
+		attenuation = color(1.0f, 1.0f, 1.0f); // absorbs no color
+		float index{ rec.getFrontFace() ? (1.0f / m_refractiveIndex) : (m_refractiveIndex) }; // ratio of refractive index (assuming n1 is air)
+		Vec3 unitDir{ unit(incident.getDirection()) };
+
+		// useful trig functions
+		float cos{ dot(-unitDir, rec.getNormal()) };
+		float sin{ std::sqrt(1 - (cos * cos)) };
+
+		// if TIR happens reflect, and also implement Schlick approximation
+		if (((index * sin) > 1.0f) || (reflectance(cos, index) > generateRandom()))
+		{
+			Vec3 reflected{ reflect(incident.getDirection(), rec.getNormal()) };
+			scattered = Ray(rec.getPoint(), reflected);
+		}
+		// otherwise refract
+		else
+		{
+			Vec3 refracted{ refract(index, unitDir, rec.getNormal()) };
+			scattered = Ray(rec.getPoint(), refracted);
+		}
+
+		return true;
+	}
+};

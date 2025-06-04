@@ -18,6 +18,7 @@ public:
 	Vec3 getNormal() const { return m_normal; }
 	float getT() const { return m_t; }
 	std::shared_ptr<Material> getMaterial() const { return m_material; }
+	bool getFrontFace() const { return m_frontFace; }
 	
 	// setters
 	void setPoint(const point3& point) { m_point = point; }

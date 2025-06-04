@@ -195,3 +195,12 @@ inline Vec3 reflect(const Vec3& v, const Vec3& n)
 {
 	return (v - (2 * dot(v, n)) * n);
 }
+
+// find refracted ray for dielectric materials
+inline Vec3 refract(float refractiveIndexRatio, const Vec3& r, const Vec3& n)
+{
+	auto rayPerp{ (refractiveIndexRatio * (r + (dot(-r, n)) * n)) };
+	auto rayParallel{ -std::sqrt(1 - std::fabs(rayPerp.lengthSquared())) * n };
+
+	return rayPerp + rayParallel;
+}
