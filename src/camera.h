@@ -18,6 +18,8 @@ private:
 	Vec3 m_u{}; // camera's x-axis
 	Vec3 m_v{}; // camera's y-axis
 	Vec3 m_vUp{}; // direction top of camera points to 
+	Vec3 m_defocusU{}; // horizontal radius of defocus disk
+	Vec3 m_defocusV{}; // vertical radius of defocus lens
 
 	color rayColor(const Ray& ray, int depth, const Hittable& obj) const
 	{
@@ -45,22 +47,22 @@ private:
 	}
 	
 public:
-	float aspectRatio{ 16.0 / 9 }; // ratio of width over height
+	float aspectRatio{ 16.0f / 9 }; // ratio of width over height
 	int width{1024}; // image width
 	int samplesPerPixel{ 100 }; // count of random samples for each pixel
 	int maxDepth{ 50 }; // maximum number of ray bounces into the scene
-	float verticalFOV{75}; // how much the camera can see vertically
+	float verticalFOV{20}; // how much the camera can see vertically
+	float defocusAngle{ 10.0f }; // angle of rays through each pixel
+	float focusDist{ 3.4f }; // distance from lookFrom to focus plane
 
 	// initialize the camera/viewport values
 	Camera()
 	{
 		m_height = static_cast<int>(width / aspectRatio);
 		m_height = (m_height < 1) ? 1 : m_height; // make sure height is at least 1
-		m_lookFrom = point3(-3.0f, 0.0f, 0.6f); 
+		m_lookFrom = point3(-2.0f, 2.0f, 1.0f); 
 		m_lookAt = point3(0.0f, 0.0f, -1.0f);
 		m_vUp = Vec3(0.0f, 1.0f, 0.0f);
-
-		auto focalLength = (m_lookFrom - m_lookAt).length(); // distance betwen camera and viewport
 
 		// camera coordinate system (orthonormal basis)
 		m_w = unit(m_lookFrom - m_lookAt);
@@ -69,7 +71,7 @@ public:
 
 		auto h{ std::tan(degreesToRadians(verticalFOV) / 2) };
 
-		float viewportHeight{ 2 * h * focalLength };
+		float viewportHeight{ 2 * h * focusDist };
 		float viewportWidth{ viewportHeight * (static_cast<float>(width) / m_height) };
 
 		Vec3 viewportU{ viewportWidth * m_u }; // vec from left to right edge
@@ -79,9 +81,14 @@ public:
 		m_deltaV = viewportV / m_height;
 
 		//									brings to center			move left			move up
-		auto viewportUpperLeft{ m_lookFrom - (focalLength * m_w) - (viewportU / 2) - (viewportV / 2) };
+		auto viewportUpperLeft{ m_lookFrom - (focusDist * m_w) - (viewportU / 2) - (viewportV / 2) };
 		// center of very top-left pixel
 		m_pixel00Location = viewportUpperLeft + (0.5 * (m_deltaU + m_deltaV));
+
+		// calculate the camera defocus disk basis vectors
+		auto defocusRadius{ focusDist * std::tan(degreesToRadians(defocusAngle / 2)) };
+		m_defocusU = m_u * defocusRadius;
+		m_defocusV = m_v * defocusRadius;
 	}
 
 	// write to ppm file and produce the image
@@ -126,10 +133,17 @@ public:
 	// get rays of random samples per pixel
 	Ray getRay(int i, int j) const
 	{
-		// offset by a random value
-		auto pixel{ m_pixel00Location + ((j + (generateRandom() - 0.5f)) * m_deltaU) + ((i + (generateRandom() - 0.5f)) * m_deltaV) };
-		auto rayDirection{ unit(pixel - m_lookFrom) };
+		// generate a random point on defocus disk to shoot ray from
+		auto randomDisk{ randomUnitDisk() };
+		auto defocusOffset{ (randomDisk.getX() * m_defocusU) + (randomDisk.getY() * m_defocusV) };
 
-		return Ray(m_lookFrom, rayDirection);
-	}
+		// no defocus blur for negative angles
+		auto origin{ (defocusAngle <= 0) ? m_lookFrom : m_lookFrom + defocusOffset };
+	
+		// target point on the focus plane
+		auto pixelTarget = m_pixel00Location + ((j + generateRandom()) * m_deltaU) + ((i + generateRandom()) * m_deltaV);
+		auto rayDirection{ unit(pixelTarget - origin) };
+
+		return Ray(origin, rayDirection);
+	}	
 };

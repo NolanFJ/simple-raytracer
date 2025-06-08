@@ -170,13 +170,13 @@ inline Vec3 randomUnit()
 {
 	while (true)
 	{
-		auto randomPoint{ Vec3::randomVec(-1.0f, 1.0f) };
-		float squaredRandomPoint{ randomPoint.lengthSquared() };
+		auto random{ Vec3::randomVec(-1.0f, 1.0f) };
+		float squaredRandom{ random.lengthSquared() };
 
 		// protect against floating point precision issues and make sure point is in sphere
-		if (squaredRandomPoint > 1e-160 && squaredRandomPoint <= 1.0f)
+		if (squaredRandom > 1e-160 && squaredRandom <= 1.0f)
 		{
-			return unit(randomPoint);
+			return unit(random);
 		}
 	}	
 }
@@ -203,4 +203,15 @@ inline Vec3 refract(float refractiveIndexRatio, const Vec3& r, const Vec3& n)
 	auto rayParallel{ -std::sqrt(1 - std::fabs(rayPerp.lengthSquared())) * n };
 
 	return rayPerp + rayParallel;
+}
+
+// random points from within the defocus disk
+inline Vec3 randomUnitDisk()
+{
+	while (true)
+	{
+		Vec3 randomDisk{ Vec3(generateRandom(-1.0f, 1.0f), generateRandom(-1.0f, 1.0f), 0) };
+		if (randomDisk.lengthSquared() < 1) // make sure it lies inside the unit circle
+			return randomDisk;
+	}
 }
