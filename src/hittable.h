@@ -1,5 +1,11 @@
 #pragma once
 
+#include "ray.h"
+#include "vec3.h"
+#include "interval.h"
+
+#include <memory>
+
 class Material;
 
 // details of where object gets hit

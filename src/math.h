@@ -8,7 +8,7 @@
 
 // useful math constants
 constexpr float infinity{ std::numeric_limits<float>::infinity() };
-constexpr float pi{ 3.1415926535897932385 };
+constexpr float pi{ float(3.1415926535897932385) };
 
 // converting from degrees to radians
 inline float degreesToRadians(float degrees)
@@ -32,11 +32,3 @@ inline float generateRandom(float min, float max)
 	return min + (max - min) * generateRandom();
 
 }
-
-
-#include "color.h"
-#include "vec3.h"
-#include "ray.h"
-#include "interval.h"
-#include "camera.h"
-#include "material.h"

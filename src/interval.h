@@ -1,5 +1,7 @@
 #pragma once
 
+#include "math.h"
+
 class Interval
 {
 private:
@@ -53,7 +55,3 @@ public:
 	static const Interval empty;
 	static const Interval universe;
 };
-
-// Initialize static const values
-const Interval Interval::empty{ Interval(infinity, -infinity) };
-const Interval Interval::universe{ Interval(-infinity, infinity) };

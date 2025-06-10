@@ -14,11 +14,34 @@ project ("SimpleRaytracer")
 set (CMAKE_CXX_STANDARD 17)
 set (CMAKE_CXX_STANDARD_REQUIRED ON)
 
-# Add source to this project's executable.
-add_executable (SimpleRaytracer "src/main.cpp"  "src/vec3.h" "src/color.h" "src/ray.h" "src/hittable.h" "src/sphere.h" "src/hittableList.h" "src/math.h" "src/interval.h" "src/camera.h" "src/material.h")
+# all header files
+set (HEADERS 
+	src/camera.h
+	src/color.h
+	src/hittable.h
+	src/hittableList.h
+	src/interval.h
+	src/material.h
+	src/math.h
+	src/ray.h
+	src/sphere.h
+	src/timer.h
+	src/vec3.h
+)
+
+# all source files
+set (SOURCES
+	src/main.cpp
+	src/material.cpp
+	src/camera.cpp 
+	src/interval.cpp
+	src/sphere.cpp
+	)
+
+# Add necessary files to this project's executable.
+add_executable (SimpleRaytracer ${SOURCES} ${HEADERS})
 
 if (CMAKE_VERSION VERSION_GREATER 3.12)
   set_property(TARGET SimpleRaytracer PROPERTY CXX_STANDARD 20)
 endif()
 
-# TODO: Add tests and install targets if needed.

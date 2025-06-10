@@ -3,6 +3,9 @@
 #include "vec3.h"
 #include "interval.h"
 
+#include <cmath>
+#include <fstream>
+
 using color = Vec3;
 
 // convert from linear space to gamma 2 space (my image viewer is expecting gamma space)
@@ -11,7 +14,7 @@ inline float linearToGamma(float linear)
 	return (linear > 0) ? std::sqrt(linear) : 0;
 }
 
-void writeColor(std::ostream& out, const color& pixelColor)
+inline void writeColor(std::ostream& out, const color& pixelColor)
 {
 	// convert to gamma space values
 	auto r{linearToGamma(pixelColor.getX())};
