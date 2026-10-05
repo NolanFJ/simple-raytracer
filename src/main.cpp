@@ -70,12 +70,13 @@ static HittableList scene()
 	return world;
 }
 
-int main()
+int main(int argc, char* argv[])
 {
 	HittableList world{ scene() };
+	std::cout << "Objects in scene: " << world.size() << '\n';
 
 	Camera cam{};
-	cam.render(world);
+	cam.render(world, (argc > 1) ? argv[1] : "Image.ppm");
 
 	return 0;
 }

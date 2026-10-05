@@ -19,8 +19,8 @@ inline float degreesToRadians(float degrees)
 // return a random number from 0f - 1f using Mersenne Twister
 inline float generateRandom()
 {
-	static std::mt19937 engine{ std::random_device {}() };
-	static std::uniform_real_distribution<float> random(0.0f, 1.0f);
+	static thread_local std::mt19937 engine{ std::random_device {}() };
+	static thread_local std::uniform_real_distribution<float> random(0.0f, 1.0f);
 
 	return random(engine);
 

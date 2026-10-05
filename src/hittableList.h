@@ -49,4 +49,6 @@ public:
 		}
 		return hit;
 	}
+
+	std::size_t size() const { return m_objects.size(); }
 };

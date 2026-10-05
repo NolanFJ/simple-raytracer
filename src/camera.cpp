@@ -5,6 +5,11 @@
 
 #include <fstream>
 #include <cmath>
+#include <atomic>
+#include <chrono>
+#include <thread>
+#include <vector>
+#include <filesystem>
 
 color Camera::rayColor(const Ray& ray, int depth, const Hittable& obj) const
 {
@@ -66,45 +71,74 @@ Camera::Camera()
 	m_defocusV = m_v * defocusRadius;
 }
 
-void Camera::render(const Hittable& world) const
+#include <atomic>
+#include <chrono>
+#include <thread>
+#include <vector>
+
+void Camera::render(const Hittable& world, const std::string& outputPath) const
 {
-	std::ofstream outf{ "../../../Image.ppm", std::ios::binary };
-	// check if file cannot open
-	if (!outf)
-	{
-		std::cerr << "Image file could not be opened.\n";
-		exit(1);
-	}
+    std::ofstream outf{ outputPath, std::ios::binary };
+    if (!outf)
+    {
+        std::cerr << "Could not open output file: " << outputPath << '\n';
+        exit(1);
+    }
 
-	// P6 expects binary format, print the dimensions of the image
-	outf << "P6\n" << width << " " << m_height << "\n255\n";
+    outf << "P6\n" << width << " " << m_height << "\n255\n";
 
-	Timer t;
+    Timer t;
 
-	// write to each pixel
-	for (int i{}; i < m_height; ++i)
-	{
-		// progress indicator
-		std::clog << "\rRendering...  " << std::round(((i / float(m_height)) * 100)) << "%" << " " << std::flush;
+    std::vector<color> pixels(static_cast<std::size_t>(width) * m_height);
+    std::atomic<int> nextRow{ 0 };
+    std::atomic<int> rowsDone{ 0 };
 
-		for (int j{}; j < width; ++j)
-		{
-			color pixelColor{};
+    // each thread grabs the next unrendered row until none are left
+    auto worker = [&]()
+    {
+        while (true)
+        {
+            int i{ nextRow.fetch_add(1) };
+            if (i >= m_height)
+                break;
 
-			for (int k{}; k < samplesPerPixel; ++k)
-			{
-				// starts at camera center then directed towards rayDirection
-				Ray ray{ getRay(i, j) };
+            for (int j{}; j < width; ++j)
+            {
+                color pixelColor{};
+                for (int k{}; k < samplesPerPixel; ++k)
+                    pixelColor += rayColor(getRay(i, j), maxDepth, world);
 
-				// add up color of each ray
-				pixelColor += rayColor(ray, maxDepth, world);
-			}
-			// write the average pixelColor across all samples
-			writeColor(outf, (pixelColor / float(samplesPerPixel)));
-		}
-	}
-	std::clog << "\rDone.                  \n";
-	std::cout << "Time taken: " << t.elapsed() << " seconds.\n";
+                pixels[static_cast<std::size_t>(i) * width + j] = pixelColor / float(samplesPerPixel);
+            }
+            ++rowsDone;
+        }
+    };
+
+    unsigned int threadCount{ std::thread::hardware_concurrency() };
+    if (threadCount == 0)
+        threadCount = 1;
+
+    std::vector<std::thread> threads;
+    for (unsigned int n{}; n < threadCount; ++n)
+        threads.emplace_back(worker);
+
+    // progress indicator on the main thread only, so output doesn't interleave
+    while (rowsDone < m_height)
+    {
+        std::clog << "\rRendering...  " << std::round(rowsDone / float(m_height) * 100) << "%  " << std::flush;
+        std::this_thread::sleep_for(std::chrono::milliseconds(100));
+    }
+
+    for (auto& th : threads)
+        th.join();
+
+    // write sequentially so the image comes out in the right order
+    for (const auto& p : pixels)
+        writeColor(outf, p);
+
+    std::clog << "\rDone.                  \n";
+    std::cout << "Time taken: " << t.elapsed() << " seconds.\n";
+	std::cout << "Saved to " << std::filesystem::absolute(outputPath) << '\n';
 }
 
 Ray Camera::getRay(int i, int j) const

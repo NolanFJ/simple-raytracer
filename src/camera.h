@@ -35,7 +35,7 @@ public:
 	Camera();
 
 	// write to ppm file and produce the image
-	void render(const Hittable& world) const;
+	void render(const Hittable& world, const std::string& outputPath) const;
 
 	// get rays of random samples per pixel
 	Ray getRay(int i, int j) const;
